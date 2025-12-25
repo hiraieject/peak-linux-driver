@@ -937,7 +937,7 @@ static int pcan_usb_device_open_fd(struct pcandev *dev,
 	/* last action: turn CAN on */
 	err = usb_if->device_ctrl_set_bus_on(dev);
 	if (err)
-		goto fail;
+		goto fail_dec_count;
 
 #ifdef STARTUP_WAIT_TIME
 	/* delay to get first messages read */
@@ -945,6 +945,10 @@ static int pcan_usb_device_open_fd(struct pcandev *dev,
 	schedule_timeout((int)(STARTUP_WAIT_TIME * HZ + 0.9));
 #endif
 
+	return 0;
+
+fail_dec_count:
+	usb_if->opened_count--;
 fail:
 	return err;
 }
@@ -979,7 +983,7 @@ static int pcan_usb_device_open(struct pcandev *dev, uint16_t btr0btr1,
 	/* last action: turn CAN on */
 	err = usb_if->device_ctrl_set_bus_on(dev);
 	if (err)
-		goto fail;
+		goto fail_dec_count;
 
 #ifdef STARTUP_WAIT_TIME
 	/* delay to get first messages read */
@@ -987,6 +991,10 @@ static int pcan_usb_device_open(struct pcandev *dev, uint16_t btr0btr1,
 	schedule_timeout((int)(STARTUP_WAIT_TIME * HZ + 0.9));
 #endif
 
+	return 0;
+
+fail_dec_count:
+	usb_if->opened_count--;
 fail:
 	return err;
 }
